@@ -1,3 +1,4 @@
+import datetime
 import uuid
 
 from flask import session
@@ -53,6 +54,16 @@ class User():
     def logout():
         session['email'] = None
 
+    # create a new post
+    @staticmethod
+    def new_post(blog_id, title, content, date=datetime.datetime.utcnow()):
+        # find the blog associated with the id
+        blog = Blog.from_mongo(blog_id)
+
+        blog.new_post(title=title,
+                      content=content,
+                      date=date)
+
     '''
     # User object methods
     '''
@@ -61,8 +72,20 @@ class User():
         self.password = password
         self._id = uuid.uuid4().hex if _id is None else _id
 
+    # return all the blogs associated with the user
     def get_blogs(self):
         return Blog.find_by_author_id(self._id)
+
+    # create a new blog
+    # TODO - add verification and sanitise the inputs
+    def new_blog(self, title, description):
+        # create a Blog object
+        blog = Blog(author=self.email,
+                    title=title,
+                    description=description,
+                    author_id=self._id)
+
+        blog.save_to_mongo()
 
     # save the post to posts collection in MongoDB
     def save_to_mongo(self):
