@@ -8,42 +8,41 @@ from src.models.blog import Blog
 
 
 class User():
-    @staticmethod
+    @classmethod
     def get_by_email(cls, email):
-        data = Database.find_one('users', {'email': email})
+        data = Database.find_one('users', {"email": email})
 
         if data is not None:
             return cls(**data)
 
-    @staticmethod
+    @classmethod
     def get_by_id(cls, id):
-        data = Database.find_one('users', {'_id': id})
+        data = Database.find_one('users', {"_id": id})
 
         if data is not None:
             return cls(**data)
 
     @staticmethod
     def login_valid(email, password):
-        # check whether a user's email matches the password
+        # Check whether a user's email matches the password they sent us
         user = User.get_by_email(email)
-
-        # if the email is a valid user account, check its password
         if user is not None:
+            # Check the password
             return user.password == password
-        else:
-            return False
+        return False
 
     @classmethod
     def register(cls, email, password):
         user = cls.get_by_email(email)
-
         if user is None:
+            # User doesn't exist, so we can create it
             new_user = cls(email, password)
             new_user.save_to_mongo()
             # store the email address in session
             session['email'] = email
             return True
         else:
+            # User exists :(
             return False
 
     @staticmethod
@@ -79,7 +78,6 @@ class User():
     # create a new blog
     # TODO - add verification and sanitise the inputs
     def new_blog(self, title, description):
-        # create a Blog object
         blog = Blog(author=self.email,
                     title=title,
                     description=description,
