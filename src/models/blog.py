@@ -63,7 +63,6 @@ class Blog():
             }
         )
 
-
     def get_posts(self):
         return Post.from_blog(self._id)
 
